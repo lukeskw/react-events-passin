@@ -11,19 +11,57 @@ import { ButtonIcon } from './button-icon'
 import { TableHeader } from './table/table-header'
 import { TableCell } from './table/table-cell'
 import { TableRow } from './table/table-row'
-import { ChangeEvent, useState } from 'react'
-import { attendees } from '../data/attendees'
+import { ChangeEvent, useEffect, useState } from 'react'
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { api } from '@/lib/axios'
 dayjs.extend(relativeTime)
+
+interface Attendee {
+  id: string
+  ticketId: string
+  name: string
+  email: string
+  createdAt: string
+  checkedInAt?: string | null
+}
+
+interface AttendeeResponse {
+  data: {
+    attendees: Attendee[]
+    total: number
+  }
+}
 
 export function AttendeeList() {
   const [searchInput, setSearchInput] = useState('')
   const [pageIndex, setPageIndex] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [attendees, setAttendees] = useState<Attendee[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [total, setTotal] = useState(0)
 
-  const totalPages = Math.ceil(attendees.length / itemsPerPage)
+  const totalPages = Math.ceil(total / itemsPerPage)
+
+  const fetchAttendees = async () => {
+    try {
+      setIsLoading(true)
+      const response: AttendeeResponse = await api.get(
+        'events/16b9c10f-c291-419a-b76d-48c7b80a9577/attendees',
+      )
+      setAttendees(response.data.attendees)
+      setTotal(response.data.total)
+      setIsLoading(false)
+    } catch (e) {
+      console.error(e)
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAttendees()
+  }, [pageIndex])
 
   function goToNextPage() {
     if (pageIndex === totalPages) {
@@ -86,18 +124,23 @@ export function AttendeeList() {
           </TableRow>
         </thead>
         <tbody>
-          {attendees
-            .slice((pageIndex - 1) * itemsPerPage, pageIndex * itemsPerPage)
-            .map((attendee) => {
+          {isLoading ? (
+            <tr>
+              <TableCell colSpan={6} className="py-4 text-center">
+                Loading...
+              </TableCell>
+            </tr>
+          ) : (
+            attendees.map((attendee) => {
               return (
-                <TableRow key={attendee.id}>
+                <TableRow key={attendee.ticketId}>
                   <TableCell className="w-8">
                     <input
                       type="checkbox"
                       className="size-4 rounded border-white/10 bg-black/20"
                     />
                   </TableCell>
-                  <TableCell>{attendee.id}</TableCell>
+                  <TableCell>{attendee.ticketId}</TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       <span className="font-semibold text-white">
@@ -107,7 +150,15 @@ export function AttendeeList() {
                     </div>
                   </TableCell>
                   <TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
-                  <TableCell>{dayjs().to(attendee.checkInAt)}</TableCell>
+                  <TableCell>
+                    {attendee.checkedInAt === null ? (
+                      <span className="text-zinc-500">
+                        Didn&apos;t check in
+                      </span>
+                    ) : (
+                      dayjs().to(attendee.checkedInAt)
+                    )}
+                  </TableCell>
                   <TableCell>
                     <ButtonIcon
                       variant="transparent"
@@ -118,7 +169,8 @@ export function AttendeeList() {
                   </TableCell>
                 </TableRow>
               )
-            })}
+            })
+          )}
         </tbody>
         <tfoot>
           <tr>
@@ -138,12 +190,12 @@ export function AttendeeList() {
                   50
                 </option>
               </select>{' '}
-              of {attendees.length} items
+              of {total} items
             </TableCell>
             <TableCell className="text-right" colSpan={3}>
               <div className="inline-flex items-center gap-8">
                 <span>
-                  Page {pageIndex} of {totalPages}
+                  Page {totalPages === 0 ? '0' : pageIndex} of {totalPages}
                 </span>
                 <div className="flex gap-1.5">
                   <ButtonIcon
@@ -157,13 +209,13 @@ export function AttendeeList() {
                   </ButtonIcon>
                   <ButtonIcon
                     onClick={goToNextPage}
-                    disabled={pageIndex === totalPages}
+                    disabled={pageIndex === totalPages || totalPages === 0}
                   >
                     <ChevronRight className="size-4" />
                   </ButtonIcon>
                   <ButtonIcon
                     onClick={goToLastPage}
-                    disabled={pageIndex === totalPages}
+                    disabled={pageIndex === totalPages || totalPages === 0}
                   >
                     <ChevronsRight className="size-4" />
                   </ButtonIcon>
