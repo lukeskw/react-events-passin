@@ -23,8 +23,10 @@ export function AttendeeList() {
   const [pageIndex, setPageIndex] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
 
+  const totalPages = Math.ceil(attendees.length / itemsPerPage)
+
   function goToNextPage() {
-    if (pageIndex === Math.ceil(attendees.length / itemsPerPage)) {
+    if (pageIndex === totalPages) {
       return
     }
     setPageIndex(pageIndex + 1)
@@ -39,7 +41,7 @@ export function AttendeeList() {
     setPageIndex(1)
   }
   function goToLastPage() {
-    setPageIndex(Math.ceil(attendees.length / itemsPerPage))
+    setPageIndex(totalPages)
   }
   function handleListTotal(event: ChangeEvent<HTMLSelectElement>) {
     event.preventDefault()
@@ -124,33 +126,45 @@ export function AttendeeList() {
               Showing{' '}
               <select
                 onChange={handleListTotal}
-                className="rounded-md border border-white/10 bg-transparent  focus:bg-white/10 focus:text-zinc-500"
+                className="rounded-md border border-white/10 bg-transparent  focus:bg-white/10 focus:text-zinc-300"
               >
-                <option className="bg-transparent" value="10">
+                <option className="bg-zinc-950 text-zinc-300" value="10">
                   10
                 </option>
-                <option value="20">20</option>
-                <option value="50">50</option>
+                <option className="bg-zinc-950 text-zinc-300" value="20">
+                  20
+                </option>
+                <option className="bg-zinc-950 text-zinc-300" value="50">
+                  50
+                </option>
               </select>{' '}
               of {attendees.length} items
             </TableCell>
             <TableCell className="text-right" colSpan={3}>
               <div className="inline-flex items-center gap-8">
                 <span>
-                  Page {pageIndex} of{' '}
-                  {Math.ceil(attendees.length / itemsPerPage)}
+                  Page {pageIndex} of {totalPages}
                 </span>
                 <div className="flex gap-1.5">
-                  <ButtonIcon onClick={goToFirstPage}>
+                  <ButtonIcon
+                    onClick={goToFirstPage}
+                    disabled={pageIndex === 1}
+                  >
                     <ChevronsLeft className="size-4" />
                   </ButtonIcon>
-                  <ButtonIcon onClick={goToPrevPage}>
+                  <ButtonIcon onClick={goToPrevPage} disabled={pageIndex === 1}>
                     <ChevronLeft className="size-4" />
                   </ButtonIcon>
-                  <ButtonIcon onClick={goToNextPage}>
+                  <ButtonIcon
+                    onClick={goToNextPage}
+                    disabled={pageIndex === totalPages}
+                  >
                     <ChevronRight className="size-4" />
                   </ButtonIcon>
-                  <ButtonIcon onClick={goToLastPage}>
+                  <ButtonIcon
+                    onClick={goToLastPage}
+                    disabled={pageIndex === totalPages}
+                  >
                     <ChevronsRight className="size-4" />
                   </ButtonIcon>
                 </div>
