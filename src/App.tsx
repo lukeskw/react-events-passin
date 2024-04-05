@@ -1,9 +1,7 @@
+import { Home } from './pages/homepage'
+
 function App() {
-  return (
-    <>
-      <h1 className="text-xl text-zinc-500">Hello</h1>
-    </>
-  )
+  return <Home />
 }
 
 export default App
