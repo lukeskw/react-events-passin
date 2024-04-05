@@ -37,28 +37,61 @@ interface AttendeeResponse {
 }
 
 export function AttendeeList() {
-  const [searchInput, setSearchInput] = useState('')
-  const [pageIndex, setPageIndex] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [searchInput, setSearchInput] = useState(() => {
+    const url = new URL(window.location.toString())
+
+    if (url.searchParams.has('query')) {
+      return url.searchParams.get('query') ?? ''
+    }
+    return ''
+  })
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    const url = new URL(window.location.toString())
+
+    if (url.searchParams.has('itemsPerPage')) {
+      return Number(url.searchParams.get('itemsPerPage'))
+    }
+    return 10
+  })
   const [attendees, setAttendees] = useState<Attendee[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [total, setTotal] = useState(0)
 
   const debouncedSearch = useDebounce(searchInput, 500)
 
-  const totalPages = Math.ceil(
-    (searchInput ? attendees.length : total) / itemsPerPage,
-  )
+  const totalPages = Math.ceil(total / itemsPerPage)
+
+  console.log(totalPages)
+  const [pageIndex, setPageIndex] = useState(() => {
+    const url = new URL(window.location.toString())
+
+    if (url.searchParams.has('query') && totalPages === 1) {
+      url.searchParams.set('page', '1')
+      window.history.pushState({}, '', url)
+      return 1
+    }
+    if (url.searchParams.has('page')) {
+      return Number(url.searchParams.get('page'))
+    }
+    return 1
+  })
 
   const fetchAttendees = async () => {
     try {
       setIsLoading(true)
+      console.log(debouncedSearch, searchInput)
       const response: AttendeeResponse = await api.get(
         'events/16b9c10f-c291-419a-b76d-48c7b80a9577/attendees',
         {
           params: {
             pageIndex: pageIndex - 1,
-            query: debouncedSearch.length > 0 ? debouncedSearch : '',
+            query:
+              debouncedSearch.length > 0
+                ? debouncedSearch
+                : searchInput.length > 0
+                  ? searchInput
+                  : '',
+            itemsPerPage,
           },
         },
       )
@@ -74,35 +107,63 @@ export function AttendeeList() {
 
   useEffect(() => {
     fetchAttendees()
-  }, [pageIndex, debouncedSearch])
+  }, [pageIndex, debouncedSearch, totalPages])
+
+  function setCurrentPage(pageIndex: number) {
+    const url = new URL(window.location.toString())
+
+    url.searchParams.set('page', String(pageIndex))
+
+    window.history.pushState({}, '', url)
+
+    setPageIndex(pageIndex)
+  }
+
+  function setCurrentSearch(query: string) {
+    const url = new URL(window.location.toString())
+
+    url.searchParams.set('query', query)
+
+    window.history.pushState({}, '', url)
+
+    setSearchInput(query)
+  }
 
   function goToNextPage() {
     if (pageIndex === totalPages) {
       return
     }
-    setPageIndex(pageIndex + 1)
+
+    setCurrentPage(pageIndex + 1)
   }
   function goToPrevPage() {
     if (pageIndex === 1) {
       return
     }
-    setPageIndex(pageIndex - 1)
+    setCurrentPage(pageIndex - 1)
   }
   function goToFirstPage() {
-    setPageIndex(1)
+    setCurrentPage(1)
   }
   function goToLastPage() {
-    setPageIndex(totalPages)
+    setCurrentPage(totalPages)
   }
   function handleListTotal(event: ChangeEvent<HTMLSelectElement>) {
     event.preventDefault()
     const selectedValue = parseInt(event.target.value)
+
+    const url = new URL(window.location.toString())
+
+    url.searchParams.set('itemsPerPage', event.target.value)
+
+    window.history.pushState({}, '', url)
+
     setItemsPerPage(selectedValue)
     setPageIndex(1)
   }
 
   function handleSearchInput(event: ChangeEvent<HTMLInputElement>) {
-    setSearchInput(event.target.value)
+    setCurrentSearch(event.target.value)
     setPageIndex(1)
   }
   return (
