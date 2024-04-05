@@ -3,6 +3,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  LoaderCircle,
   MoreHorizontal,
   Search,
 } from 'lucide-react'
@@ -16,6 +17,7 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { api } from '@/lib/axios'
+import { useDebounce } from '@/hooks/useDebounce'
 dayjs.extend(relativeTime)
 
 interface Attendee {
@@ -42,14 +44,25 @@ export function AttendeeList() {
   const [isLoading, setIsLoading] = useState(false)
   const [total, setTotal] = useState(0)
 
-  const totalPages = Math.ceil(total / itemsPerPage)
+  const debouncedSearch = useDebounce(searchInput, 500)
+
+  const totalPages = Math.ceil(
+    (searchInput ? attendees.length : total) / itemsPerPage,
+  )
 
   const fetchAttendees = async () => {
     try {
       setIsLoading(true)
       const response: AttendeeResponse = await api.get(
         'events/16b9c10f-c291-419a-b76d-48c7b80a9577/attendees',
+        {
+          params: {
+            pageIndex: pageIndex - 1,
+            query: debouncedSearch.length > 0 ? debouncedSearch : '',
+          },
+        },
       )
+
       setAttendees(response.data.attendees)
       setTotal(response.data.total)
       setIsLoading(false)
@@ -61,7 +74,7 @@ export function AttendeeList() {
 
   useEffect(() => {
     fetchAttendees()
-  }, [pageIndex])
+  }, [pageIndex, debouncedSearch])
 
   function goToNextPage() {
     if (pageIndex === totalPages) {
@@ -90,6 +103,7 @@ export function AttendeeList() {
 
   function handleSearchInput(event: ChangeEvent<HTMLInputElement>) {
     setSearchInput(event.target.value)
+    setPageIndex(1)
   }
   return (
     <div className="flex flex-col gap-4">
@@ -100,7 +114,7 @@ export function AttendeeList() {
           <input
             type="text"
             placeholder="Search attendees..."
-            className="flex-1 border-0 bg-transparent p-0 text-sm outline-none"
+            className="flex-1 border-0 bg-transparent p-0 text-sm outline-none focus:ring-0"
             onChange={handleSearchInput}
             value={searchInput}
           />
@@ -125,11 +139,15 @@ export function AttendeeList() {
         </thead>
         <tbody>
           {isLoading ? (
-            <tr>
-              <TableCell colSpan={6} className="py-4 text-center">
-                Loading...
-              </TableCell>
-            </tr>
+            <>
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <div className="flex w-full items-center justify-center">
+                    <LoaderCircle className="size-5 animate-spin" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            </>
           ) : (
             attendees.map((attendee) => {
               return (
@@ -190,7 +208,7 @@ export function AttendeeList() {
                   50
                 </option>
               </select>{' '}
-              of {total} items
+              of {searchInput ? attendees.length : total} items
             </TableCell>
             <TableCell className="text-right" colSpan={3}>
               <div className="inline-flex items-center gap-8">
