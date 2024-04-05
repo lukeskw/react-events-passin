@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  dayjs:
+    specifier: ^1.11.10
+    version: 1.11.10
   lucide-react:
     specifier: ^0.364.0
     version: 0.364.0(react@18.2.0)
@@ -19,12 +22,18 @@ dependencies:
     version: 2.2.2
 
 devDependencies:
+  '@faker-js/faker':
+    specifier: ^8.4.1
+    version: 8.4.1
   '@rocketseat/eslint-config':
     specifier: ^2.2.2
     version: 2.2.2(eslint@8.57.0)(typescript@5.4.4)
   '@tailwindcss/forms':
     specifier: ^0.5.7
     version: 0.5.7(tailwindcss@3.4.3)
+  '@types/node':
+    specifier: ^20.12.4
+    version: 20.12.4
   '@types/react':
     specifier: ^18.2.66
     version: 18.2.74
@@ -69,7 +78,7 @@ devDependencies:
     version: 5.4.4
   vite:
     specifier: ^5.2.0
-    version: 5.2.8
+    version: 5.2.8(@types/node@20.12.4)
 
 packages:
 
@@ -558,6 +567,11 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
+  /@faker-js/faker@8.4.1:
+    resolution: {integrity: sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
+    dev: true
+
   /@humanwhocodes/config-array@0.11.14:
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
@@ -851,6 +865,12 @@ packages:
 
   /@types/json5@0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+    dev: true
+
+  /@types/node@20.12.4:
+    resolution: {integrity: sha512-E+Fa9z3wSQpzgYQdYmme5X3OTuejnnTx88A6p6vkkJosR3KBz+HpE3kqNm98VE6cfLFcISx7zW7MsJkH6KwbTw==}
+    dependencies:
+      undici-types: 5.26.5
     dev: true
 
   /@types/prop-types@15.7.12:
@@ -1153,7 +1173,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.4)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.2.8
+      vite: 5.2.8(@types/node@20.12.4)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -1567,6 +1587,10 @@ packages:
       es-errors: 1.3.0
       is-data-view: 1.0.1
     dev: true
+
+  /dayjs@1.11.10:
+    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
+    dev: false
 
   /debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -3742,6 +3766,10 @@ packages:
       which-boxed-primitive: 1.0.2
     dev: true
 
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+    dev: true
+
   /update-browserslist-db@1.0.13(browserslist@4.23.0):
     resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}
     hasBin: true
@@ -3763,7 +3791,7 @@ packages:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
 
-  /vite@5.2.8:
+  /vite@5.2.8(@types/node@20.12.4):
     resolution: {integrity: sha512-OyZR+c1CE8yeHw5V5t59aXsUPPVTHMDjEZz8MgguLL/Q7NblxhZUlTu9xSPqlsUO/y+X7dlU05jdhvyycD55DA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -3791,6 +3819,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': 20.12.4
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.14.0
