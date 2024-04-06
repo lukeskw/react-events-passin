@@ -55,13 +55,12 @@ export function AttendeeList() {
   })
   const [attendees, setAttendees] = useState<Attendee[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [total, setTotal] = useState(0)
+  const [total, setTotal] = useState(1)
 
   const debouncedSearch = useDebounce(searchInput, 500)
 
   const totalPages = Math.ceil(total / itemsPerPage)
 
-  console.log(totalPages)
   const [pageIndex, setPageIndex] = useState(() => {
     const url = new URL(window.location.toString())
 
@@ -79,7 +78,6 @@ export function AttendeeList() {
   const fetchAttendees = async () => {
     try {
       setIsLoading(true)
-      console.log(debouncedSearch, searchInput)
       const response: AttendeeResponse = await api.get(
         'events/16b9c10f-c291-419a-b76d-48c7b80a9577/attendees',
         {
@@ -257,6 +255,7 @@ export function AttendeeList() {
               Showing{' '}
               <select
                 onChange={handleListTotal}
+                value={itemsPerPage}
                 className="rounded-md border border-white/10 bg-transparent  focus:bg-white/10 focus:text-zinc-300"
               >
                 <option className="bg-zinc-950 text-zinc-300" value="10">
