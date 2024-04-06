@@ -6,10 +6,10 @@ export function Header() {
       <img src={appIcon} alt="" />
       <nav className="flex items-center gap-5">
         <a href="#" className="text-sm font-medium text-zinc-300">
-          Eventos
+          Events
         </a>
         <a href="#" className="text-sm font-medium">
-          Participantes
+          Participants
         </a>
       </nav>
     </header>
